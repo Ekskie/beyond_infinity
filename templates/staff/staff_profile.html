@@ -4,9 +4,25 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/staff_profile.css') }}">
+<style>
+  .search-bar input {
+  width: 100%;
+  padding: 8px 30px 8px 35px;
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  font-size: 14px;
+  background-color: #f9fafb;
+}
 
+</style>
 <h1>Staff Profile</h1>
-
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 <form id="profile-form" method="POST" action="{{ url_for('update_profile_combined') }}">
   <fieldset>
     <legend>Personal Information</legend>

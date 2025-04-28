@@ -258,5 +258,34 @@
             editModal.style.display = 'flex';
         });
     });
+
+    // Delete button logic
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const user = JSON.parse(this.dataset.user);
+            if (confirm(`Are you sure you want to delete user ${user.first_name} ${user.last_name || ''} (${user.email})? This action cannot be undone.`)) {
+                fetch('/delete_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'email': user.email
+                    })
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        alert('Failed to delete user.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+                    alert('An error occurred while deleting the user.');
+                });
+            }
+        });
+    });
 </script>
 {% endblock %}

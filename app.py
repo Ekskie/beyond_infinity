@@ -674,15 +674,20 @@ def add_task():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@app.route('/delete_assignment/<int:assignment_id>', methods=['DELETE'])
+@app.route('/delete_assignment/<assignment_id>', methods=['POST'])
 def delete_assignment(assignment_id):
-    event_id = request.form['event_id']
+    # Delete all tasks related to this assignment first
+    try:
+        supabase.table("staff_tasks").delete().eq("assignment_id", assignment_id).execute()
+    except Exception as e:
+        return jsonify({'success': False, 'message': f"Error deleting related tasks: {e}"}), 500
+
+    # Then delete the assignment itself
     response = supabase.table("staff_assignments").delete().eq("id", assignment_id).execute()
     if response.data:
-        flash("Event deleted successfully!", "success")
+        return jsonify({'success': True, 'message': "Assignment deleted successfully!"})
     else:
-        flash("Error occurred while trying to delete the event.", "danger")
-    return redirect(url_for('staff_scheduling'))
+        return jsonify({'success': False, 'message': "Error occurred while trying to delete the assignment."}), 500
 
 @app.route('/update_staff_availability', methods=['POST'])
 def update_staff_availability():
@@ -780,6 +785,36 @@ def staff_profile():
         flash(f"Error loading profile: {e}", "danger")
         user = {}
     return render_template('staff/staff_profile.html', user=user)
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if 'user_role' not in session or session['user_role'] != 'Admin':
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for('dashboard'))
+
+    email = request.form.get('email')
+    if not email:
+        flash("User email is required for deletion.", "danger")
+        return redirect(url_for('users_management'))
+
+    try:
+        response = supabase.table('users').delete().eq('email', email).execute()
+        if response.data:
+            flash("User deleted successfully!", "success")
+        else:
+            flash("Failed to delete user.", "danger")
+    except Exception as e:
+        flash(f"An error occurred while deleting user: {e}", "danger")
+
+    return redirect(url_for('users_management'))
+
+@app.route('/delete_task/<task_id>', methods=['POST'])
+def delete_task(task_id):
+    response = supabase.table("staff_tasks").delete().eq("id", task_id).execute()
+    if response.data:
+        return jsonify({'success': True, 'message': "Task deleted successfully!"})
+    else:
+        return jsonify({'success': False, 'message': "Error occurred while trying to delete the task."}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
