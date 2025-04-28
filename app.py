@@ -424,7 +424,7 @@ def assign_staff():
     }
 
     supabase.table('staff_assignments').insert(new_assignment).execute()
-
+    flash("Staff Assigned Successfully.", "Success")
     return redirect(url_for('staff_scheduling'))
 
 @app.route('/users_management')
