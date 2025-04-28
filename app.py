@@ -423,7 +423,7 @@ def assign_staff():
 
     supabase.table('staff_assignments').insert(new_assignment).execute()
 
-    return redirect(staff_scheduling)
+    return redirect(url_for('staff_scheduling'))
 
 @app.route('/users_management')
 def users_management():
@@ -672,7 +672,7 @@ def add_task():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@app.route('/delete_assignment/<int:assignment_id>', methods=['POST'])
+@app.route('/delete_assignment/<int:assignment_id>', methods=['DELETE'])
 def delete_assignment(assignment_id):
     event_id = request.form['event_id']
     response = supabase.table("staff_assignments").delete().eq("id", assignment_id).execute()
