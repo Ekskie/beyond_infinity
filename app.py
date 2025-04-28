@@ -672,20 +672,15 @@ def add_task():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# Route to delete an assignment
-@app.route('/delete_assignment/<int:assignment_id>', methods=['DELETE'])
+@app.route('/delete_assignment/<int:assignment_id>', methods=['POST'])
 def delete_assignment(assignment_id):
-    if 'user_role' not in session or session['user_role'] != 'Admin':
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
-    
-    try:
-        response = supabase.table('staff_assignments').delete().eq('id', assignment_id).execute()
-        if response.data:
-            return jsonify({'success': True, 'message': 'Assignment deleted'})
-        else:
-            return jsonify({'success': False, 'message': 'Failed to delete assignment'}), 500
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+    event_id = request.form['event_id']
+    response = supabase.table("staff_assignments").delete().eq("id", assignment_id).execute()
+    if response.data:
+        flash("Event deleted successfully!", "success")
+    else:
+        flash("Error occurred while trying to delete the event.", "danger")
+    return redirect(url_for('staff_scheduling'))
 
 @app.route('/update_staff_availability', methods=['POST'])
 def update_staff_availability():
