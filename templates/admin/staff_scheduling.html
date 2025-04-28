@@ -195,7 +195,8 @@
             <tbody>
                 {% for assignment in assignments %}
                 <tr>
-                    <td class="staff-name">{{ assignment.staff_email }}</td>
+                    {% set staff = staff_users | selectattr('email', 'equalto', assignment.staff_email) | first %}
+                    <td class="staff-name">{{ staff.first_name }} {{ staff.last_name }}</td>
                     <td>
                         {% for booking in approved_bookings %}
                             {% if booking.id == assignment.booking_id %} 
@@ -243,7 +244,9 @@
             <tbody>
                 {% for task in tasks %}
                 <tr>
-                    <td class="staff-name">{{ task.staff_email }}</td>
+                    {% set staff = staff_users | selectattr('email', 'equalto', task.staff_email) | first %}
+                    <td class="staff-name">{{ staff.first_name }} {{ staff.last_name }}</td>
+
                     <td>
                         {% for booking in approved_bookings %}
                             {% if booking.id == task.booking_id %} 
